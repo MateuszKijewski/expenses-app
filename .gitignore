@@ -136,4 +136,8 @@ sketch
 client/.node_modules
 client/.history
 .history
+
+#secrets
+/secrets.json
+
 # End of https://www.gitignore.io/api/react,django

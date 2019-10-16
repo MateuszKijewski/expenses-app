@@ -22,11 +22,12 @@ Vagrant.configure("2") do |config|
     systemctl disable apt-daily.timer
   
     sudo apt-get update
-    sudo apt-get install -y python3-venv zip
+    sudo apt-get install -y python3-pip python3-venv zip
     touch /home/vagrant/.bash_aliases
     if ! grep -q PYTHON_ALIAS_ADDED /home/vagrant/.bash_aliases; then
-      echo "# PYTHON_ALIAS_ADDED" >> /home/vagrant/.bash_aliases
-      echo "alias python='python3'" >> /home/vagrant/.bash_aliases
+    echo "# PYTHON_ALIAS_ADDED" >> /home/vagrant/.bash_aliases
+    echo "alias python='python3'" >> /home/vagrant/.bash_aliases
+    echo "alias pip='pip3'" >> /home/vagrant/.bash_aliases
     fi
   SHELL
  end
