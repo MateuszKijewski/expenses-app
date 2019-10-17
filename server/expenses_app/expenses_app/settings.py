@@ -50,7 +50,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'core',
+    'user',
 ]
 
 MIDDLEWARE = [
@@ -96,14 +98,14 @@ DATABASES = {
 
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'HOST': 'pgsql3.mydevil.net',
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
 #         'NAME': 'p1649_base_exp',
 #         'USER': 'p1649_base_exp',
 #         'PASSWORD': get_secret('DB_PASSWORD'),
+#         'HOST': 'localhost',
+#         'PORT': '8543',
 #     }
 # }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators

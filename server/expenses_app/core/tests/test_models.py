@@ -10,7 +10,8 @@ class ModelTests(TestCase):
         password = 'test123'
         user = get_user_model().objects.create_user(
             email=email,
-            password=password
+            password=password,
+            tel_number='123456789'
         )
 
         self.assertEqual(user.email, email)
@@ -21,7 +22,8 @@ class ModelTests(TestCase):
         email = 'test@GMAIL.COM'
         user = get_user_model().objects.create_user(
             email=email,
-            password='test123'
+            password='test123',
+            tel_number='123456789'
         )
 
         self.assertEqual(user.email, email.lower())
