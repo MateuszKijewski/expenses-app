@@ -138,6 +138,6 @@ client/.history
 .history
 
 #secrets
-/secrets.json
+# /secrets.json
 
 # End of https://www.gitignore.io/api/react,django
