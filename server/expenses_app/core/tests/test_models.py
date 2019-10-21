@@ -54,12 +54,14 @@ class ModelTests(TestCase):
         self.assertTrue(user.is_superuser)
         self.assertTrue(user.is_staff)
 
-    def test_income_str(self):
-        """Test the expense string representation"""
-        income = models.Income.objects.create(
+    def test_operation_str(self):
+        """Test the operation string representation"""
+        operation = models.Operation.objects.create(
             user = sample_user(),
             source = 'ubereats',
-            amount = 20.00
+            amount = 20.00,
+            category= 'Groceries',
+            method='Bank transfer'
         )
 
-        self.assertEqual(str(income), income.source)
+        self.assertEqual(str(operation), operation.source)

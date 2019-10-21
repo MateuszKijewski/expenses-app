@@ -40,8 +40,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
 
 
-class Income(models.Model):
-    """Database model for income"""
+class Operation(models.Model):
+    """Database model for operation"""
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete = models.CASCADE
@@ -50,11 +50,67 @@ class Income(models.Model):
     is_archived = models.BooleanField(default=False)
     amount = models.DecimalField(
         max_digits=19,
-        decimal_places=2,
-        validators=[MinValueValidator(0.01)]
+        decimal_places=2
     )
-    add_date = models.DateTimeField(auto_now_add=True)
+    add_date = models.DateField(auto_now_add=True)
+
+    SHOPPING = 'Shopping'
+    FOODDRINK = 'Food & Drink'
+    GROCERIES = 'Groceries'
+    ENTERTAINMENT = 'Entertainment'
+    BILL = 'Bill'
+    SUBSCRIPTION = 'Subscription'
+    INCOME = 'Income'
+    OTHERS = 'Others'
+
+    CATEGORY_CHOICES = [
+        (SHOPPING, 'Shopping'),
+        (FOODDRINK, 'Food & Drink'),
+        (GROCERIES, 'Groceries'),
+        (ENTERTAINMENT, 'Entertainment'),
+        (BILL, 'Bill'),
+        (SUBSCRIPTION, 'Subscription'),
+        (INCOME, 'Income'),
+        (OTHERS, "Others")
+    ]
+    category = models.CharField(
+        max_length=255,
+        choices=CATEGORY_CHOICES,
+        default=None
+    )
+    method = models.CharField(
+        max_length=255,
+        default='Bank transfer'
+    )
+
 
     def __str__(self):
-        """String representation of an income"""
+        """String representation of an operation"""
         return self.source
+
+
+"""
+class Category():
+    name = charfield
+    limit = integerfield
+    
+
+
+"""
+
+"""
+class ReccuringPayments(models.Model):
+    user = ForeignKey
+    source = Charfield
+    paid_until = DateTime()
+    amount = DecimalField
+
+    BILL = 'Bill'
+    SUBSCRIPTION = 'Subscription
+
+    CATEGORY_CHOICES = [
+        (BILL, 'Bill'),
+        (SUBSCRIPTION, 'Subscription)
+    ]
+
+"""

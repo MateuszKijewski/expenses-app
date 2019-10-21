@@ -5,10 +5,11 @@ from rest_framework.routers import DefaultRouter
 from balance import views
 
 router = DefaultRouter()
-router.register('incomes', views.IncomeViewSet)
+router.register('operations', views.OperationViewSet)
 
 app_name = 'balance'
 
 urlpatterns = [
-    path('', include(router.urls))
+    path('', include(router.urls)),
+    path('operations/delete', views.OperationDelete.as_view(), name='delete')
 ]
