@@ -65,3 +65,13 @@ class ModelTests(TestCase):
         )
 
         self.assertEqual(str(operation), operation.source)
+    
+    def test_reccuring_payment_str(self):
+        """Test the reccuring payment string representation"""
+        payment = models.ReccuringPayment.objects.create(
+            user = sample_user(),
+            source = 'netflix',
+            amount = 30,
+            paid_until='2019-12-12',
+            category='Bill'
+        )

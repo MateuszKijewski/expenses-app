@@ -98,19 +98,27 @@ class Category():
 
 """
 
-"""
-class ReccuringPayments(models.Model):
-    user = ForeignKey
-    source = Charfield
-    paid_until = DateTime()
-    amount = DecimalField
+class ReccuringPayment(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete = models.CASCADE
+    )
+    source = models.CharField(max_length=255)
+    paid_until = models.DateField()
+    amount = models.DecimalField(
+        max_digits=19,
+        decimal_places=2
+    )
 
     BILL = 'Bill'
-    SUBSCRIPTION = 'Subscription
+    SUBSCRIPTION = 'Subscription'
 
     CATEGORY_CHOICES = [
         (BILL, 'Bill'),
-        (SUBSCRIPTION, 'Subscription)
+        (SUBSCRIPTION, 'Subscription')
     ]
+    category = models.CharField(max_length=len(SUBSCRIPTION))
 
-"""
+    def __str__(self):
+        """String representation of a model"""
+        return self.source
