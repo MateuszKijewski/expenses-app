@@ -5,13 +5,13 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import Operation
+from core.models import Operation, LimitedCategory
 
-from balance.serializers import OperationSerializer
+from balance.serializers import OperationSerializer, LimitedCategorySerializer
 
 BALANCE_URL = reverse('balance:operation-list')
 OPERATION_DELETE_URL = reverse('balance:delete')
-
+LIMITED_CATEGORIES_URL = reverse('balance:limitedcategory-list')
 
 class PublicOperationApiTests(TestCase):
     """Test the publicly available operation"""
@@ -163,3 +163,67 @@ class PrivateOperationApiTests(TestCase):
         """Test deleting with invalid id"""
         res = self.client.post(OPERATION_DELETE_URL, {"ids":[1]})
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+        
+    # def test_limited_category_expense(self):
+    #     """Test if created expense in limited category works"""
+    #     LimitedCategory.objects.create (
+    #         user=self.user,
+    #         category='Groceries',
+    #         limit=250
+    #     )
+    
+    #     Operation.objects.create(
+    #         user=self.user,
+    #         source='spotify',
+    #         amount= -30,
+    #         category= 'Bill',
+    #         method = 'Bank transfer'
+    #     )
+
+    #     self.assertEqual()
+
+    def test_category_list(self):
+        """Test if categories are listing correctly"""
+        LimitedCategory.objects.create (
+            user=self.user,
+            category='Groceries',
+            limit=250
+        )
+        LimitedCategory.objects.create (
+            user=self.user,
+            category='Food & Drink',
+            limit=300
+        )
+
+        res = self.client.get(LIMITED_CATEGORIES_URL)
+
+        categories = LimitedCategory.objects.all().order_by('-category')
+        serializer = LimitedCategorySerializer(categories, many=True)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, serializer.data)
+    
+    def test_categories_related_to_user(self):
+        """Test if retrieved categories belong to user"""
+        new_user = get_user_model().objects.create_user(
+            email='else@gmail.com',
+            password='asd123',
+            tel_number='987654321'
+        )
+        LimitedCategory.objects.create (
+            user=new_user,
+            category='Groceries',
+            limit=250
+        )
+        category = LimitedCategory.objects.create (
+            user=self.user,
+            category='Food & Drink',
+            limit=300
+        )
+
+        res = self.client.get(LIMITED_CATEGORIES_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 1)
+        self.assertEqual(res.data[0]['category'], category.category)

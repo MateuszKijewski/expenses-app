@@ -75,3 +75,15 @@ class ModelTests(TestCase):
             paid_until='2019-12-12',
             category='Bill'
         )
+        
+        self.assertEqual(str(payment), payment.source)
+    
+    def test_limited_category_str(self):
+        """Test the limited category string representation"""
+        limited_category = models.LimitedCategory.objects.create(
+            user=sample_user(),
+            category='Groceries',
+            limit=300
+        )
+
+        self.assertEqual(str(limited_category), limited_category.category)

@@ -6,6 +6,7 @@ from balance import views
 
 router = DefaultRouter()
 router.register('operations', views.OperationViewSet)
+router.register('limited', views.LimitedCategoryViewSet)
 
 app_name = 'balance'
 

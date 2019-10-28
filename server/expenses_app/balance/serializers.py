@@ -21,3 +21,14 @@ class DeleteSerializer(serializers.Serializer):
     ids = serializers.ListField(
         child=serializers.IntegerField()
     )
+
+class LimitedCategorySerializer(serializers.ModelSerializer):
+    """Serializes limited categories model"""
+    
+    class Meta:
+        model = models.LimitedCategory
+        fields = ('id', 'user', 'limit', 'category')
+        extra_kwargs = {
+            'id': {'read_only': True},
+            'user': {'read_only': True}
+        }

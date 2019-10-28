@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from core.models import Operation
+from core.models import Operation, LimitedCategory
 
 from balance import serializers
 
@@ -27,6 +27,21 @@ class OperationViewSet(viewsets.GenericViewSet,
     def perform_create(self, serializer):
         """Create new action"""
         serializer.save(user=self.request.user)
+    
+    def perform_update(self, serializer):
+        """Interact with other models on creation"""
+        instance = serializer.save(user=self.request.user)
+        category = instance.validated_data['category']
+        try:
+            limited_category = LimitedCategory.objects.filter(
+                category=category
+            ).get()
+        except LimitedCategory.DoesNotExist:
+            return HttpResponse(status=400)
+        
+        limited_category = instance.validated_data['amount'] + limited_category['limit']
+        
+        
 
 class OperationDelete(APIView):
     """Handle operations deleting"""
@@ -49,3 +64,23 @@ class OperationDelete(APIView):
                 operation = self.queryset.filter(pk=value, user=self.request.user).get()
                 operation.delete()
             return Response({'message': 'Objects were succesfully deleted'})
+
+class LimitedCategoryViewSet(viewsets.ModelViewSet):
+    """Manager for the limited categories"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = serializers.LimitedCategorySerializer
+    queryset = LimitedCategory.objects.all()
+
+    def get_queryset(self):
+        """Return objects for the currently authenticated user"""
+        return self.queryset.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        """Create new category"""
+        serializer.save(user=self.request.user)
+
+    def perform_update(self, serializer):
+        """Perform updates after saving"""
+        instance = serializer.save(user=self.request.user)
+    

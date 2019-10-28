@@ -106,11 +106,11 @@ DATABASES = {
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'p1649_base_exp',
-#         'USER': 'p1649_base_exp',
-#         'PASSWORD': get_secret('DB_PASSWORD'),
-#         'HOST': 'localhost',
-#         'PORT': '8543',
+#         'NAME': 'pbeshdeb',
+#         'USER': 'pbeshdeb',
+#         'PASSWORD': 'HsbHITNpulvF-M3FCKiDabsgd9ia8Fue',
+#         'HOST': 'balarama.db.elephantsql.com',
+#         'PORT': '5432',
 #     }
 # }
 

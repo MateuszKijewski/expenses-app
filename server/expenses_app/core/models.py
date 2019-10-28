@@ -89,16 +89,8 @@ class Operation(models.Model):
         return self.source
 
 
-"""
-class Category():
-    name = charfield
-    limit = integerfield
-    
-
-
-"""
-
 class ReccuringPayment(models.Model):
+    """Database model for limited reccuring payments"""
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete = models.CASCADE
@@ -122,3 +114,44 @@ class ReccuringPayment(models.Model):
     def __str__(self):
         """String representation of a model"""
         return self.source
+
+class LimitedCategory(models.Model):
+    """Database model for limited categories"""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete = models.CASCADE
+    )
+
+    limit = models.DecimalField(
+        max_digits=19,
+        decimal_places=2
+    )
+    amount = models.DecimalField(
+        max_digits=19,
+        decimal_places=2
+    )
+    SHOPPING = 'Shopping'
+    FOODDRINK = 'Food & Drink'
+    GROCERIES = 'Groceries'
+    ENTERTAINMENT = 'Entertainment'
+    INCOME = 'Income'
+    OTHERS = 'Others'
+
+    CATEGORY_CHOICES = [
+        (SHOPPING, 'Shopping'),
+        (FOODDRINK, 'Food & Drink'),
+        (GROCERIES, 'Groceries'),
+        (ENTERTAINMENT, 'Entertainment'),
+        (INCOME, 'Income'),
+        (OTHERS, "Others")
+    ]
+    category = models.CharField(max_length=len(FOODDRINK))
+
+    def __str__(self):
+        """Return string representation"""
+        return self.category
+
+    def set_initial_value(self):
+        """Sets the value according to limit"""
+        self.amount = self.limit
+        self.save()
