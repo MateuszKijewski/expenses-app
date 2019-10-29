@@ -26,22 +26,18 @@ class OperationViewSet(viewsets.GenericViewSet,
 
     def perform_create(self, serializer):
         """Create new action"""
-        serializer.save(user=self.request.user)
+        if (serializer.validated_data['amount'] > 0):
+            serializer.save(user=self.request.user)
+        else:
+            category = serializer.validated_data['category']
+            try:
+                limited_category = LimitedCategory.objects.get(category=category)
+                limited_category.amount += serializer.validated_data['amount']
+                limited_category.save()        
+                serializer.save(user=self.request.user)
+            except LimitedCategory.DoesNotExist:
+                serializer.save(user=self.request.user)
     
-    def perform_update(self, serializer):
-        """Interact with other models on creation"""
-        instance = serializer.save(user=self.request.user)
-        category = instance.validated_data['category']
-        try:
-            limited_category = LimitedCategory.objects.filter(
-                category=category
-            ).get()
-        except LimitedCategory.DoesNotExist:
-            return HttpResponse(status=400)
-        
-        limited_category = instance.validated_data['amount'] + limited_category['limit']
-        
-        
 
 class OperationDelete(APIView):
     """Handle operations deleting"""
@@ -78,9 +74,4 @@ class LimitedCategoryViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """Create new category"""
-        serializer.save(user=self.request.user)
-
-    def perform_update(self, serializer):
-        """Perform updates after saving"""
-        instance = serializer.save(user=self.request.user)
-    
+        serializer.save(user=self.request.user, amount=self.request.data['limit'])

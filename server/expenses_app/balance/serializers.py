@@ -27,8 +27,9 @@ class LimitedCategorySerializer(serializers.ModelSerializer):
     
     class Meta:
         model = models.LimitedCategory
-        fields = ('id', 'user', 'limit', 'category')
+        fields = ('id', 'user', 'limit', 'amount', 'category')
         extra_kwargs = {
             'id': {'read_only': True},
-            'user': {'read_only': True}
+            'user': {'read_only': True},
+            'amount': {'read_only': True}
         }

@@ -164,36 +164,19 @@ class PrivateOperationApiTests(TestCase):
         res = self.client.post(OPERATION_DELETE_URL, {"ids":[1]})
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
-        
-    # def test_limited_category_expense(self):
-    #     """Test if created expense in limited category works"""
-    #     LimitedCategory.objects.create (
-    #         user=self.user,
-    #         category='Groceries',
-    #         limit=250
-    #     )
-    
-    #     Operation.objects.create(
-    #         user=self.user,
-    #         source='spotify',
-    #         amount= -30,
-    #         category= 'Bill',
-    #         method = 'Bank transfer'
-    #     )
-
-    #     self.assertEqual()
-
     def test_category_list(self):
         """Test if categories are listing correctly"""
         LimitedCategory.objects.create (
             user=self.user,
             category='Groceries',
-            limit=250
+            limit=250,
+            amount=250
         )
         LimitedCategory.objects.create (
             user=self.user,
             category='Food & Drink',
-            limit=300
+            limit=300,
+            amount=250
         )
 
         res = self.client.get(LIMITED_CATEGORIES_URL)
@@ -214,12 +197,14 @@ class PrivateOperationApiTests(TestCase):
         LimitedCategory.objects.create (
             user=new_user,
             category='Groceries',
-            limit=250
+            limit=250,
+            amount=250
         )
         category = LimitedCategory.objects.create (
             user=self.user,
             category='Food & Drink',
-            limit=300
+            limit=300,
+            amount=250
         )
 
         res = self.client.get(LIMITED_CATEGORIES_URL)
@@ -227,3 +212,26 @@ class PrivateOperationApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 1)
         self.assertEqual(res.data[0]['category'], category.category)
+
+
+    def test_limited_category_expense(self):
+        """Test if created expense in limited category subtracts from the amount"""
+        category = LimitedCategory.objects.create (
+            user=self.user,
+            category='Groceries',
+            limit=250,
+            amount=250
+        )
+
+        Operation.objects.create(
+            user=self.user,
+            source='spotify',
+            amount= -30,
+            category= 'Groceries',
+            method = 'Bank transfer'
+        )
+
+        res = self.client.get(LIMITED_CATEGORIES_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(category.amount, 220)

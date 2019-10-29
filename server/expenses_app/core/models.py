@@ -154,4 +154,3 @@ class LimitedCategory(models.Model):
     def set_initial_value(self):
         """Sets the value according to limit"""
         self.amount = self.limit
-        self.save()

@@ -83,7 +83,8 @@ class ModelTests(TestCase):
         limited_category = models.LimitedCategory.objects.create(
             user=sample_user(),
             category='Groceries',
-            limit=300
+            limit=300,
+            amount=250
         )
 
         self.assertEqual(str(limited_category), limited_category.category)
