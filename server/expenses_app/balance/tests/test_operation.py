@@ -13,6 +13,7 @@ BALANCE_URL = reverse('balance:operation-list')
 OPERATION_DELETE_URL = reverse('balance:delete')
 LIMITED_CATEGORIES_URL = reverse('balance:limitedcategory-list')
 
+
 class PublicOperationApiTests(TestCase):
     """Test the publicly available operation"""
 
@@ -213,25 +214,24 @@ class PrivateOperationApiTests(TestCase):
         self.assertEqual(len(res.data), 1)
         self.assertEqual(res.data[0]['category'], category.category)
 
-
     def test_limited_category_expense(self):
         """Test if created expense in limited category subtracts from the amount"""
-        category = LimitedCategory.objects.create (
-            user=self.user,
-            category='Groceries',
-            limit=250,
-            amount=250
-        )
+        payload_category = {
+            'category': 'Groceries',
+            'limit': '250'
+        }
 
-        Operation.objects.create(
-            user=self.user,
-            source='spotify',
-            amount= -30,
-            category= 'Groceries',
-            method = 'Bank transfer'
-        )
+        payload_operation = {
+            'source': 'walmart',
+            'amount': -30,
+            'category': 'Groceries',
+            'method': 'Bank transfer'
+        }
+        res_category = self.client.post(LIMITED_CATEGORIES_URL, payload_category)
+        res_operation = self.client.post(BALANCE_URL, payload_operation)
 
-        res = self.client.get(LIMITED_CATEGORIES_URL)
+        self.assertEqual(res_category.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(res_operation.status_code, status.HTTP_201_CREATED)
 
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(category.amount, 220)
+        res_category = self.client.get(LIMITED_CATEGORIES_URL)
+        self.assertEqual(float(res_category.data[0]['amount']), 220.00)

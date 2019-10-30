@@ -121,7 +121,6 @@ class LimitedCategory(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete = models.CASCADE
     )
-
     limit = models.DecimalField(
         max_digits=19,
         decimal_places=2
@@ -134,7 +133,6 @@ class LimitedCategory(models.Model):
     FOODDRINK = 'Food & Drink'
     GROCERIES = 'Groceries'
     ENTERTAINMENT = 'Entertainment'
-    INCOME = 'Income'
     OTHERS = 'Others'
 
     CATEGORY_CHOICES = [
@@ -142,10 +140,13 @@ class LimitedCategory(models.Model):
         (FOODDRINK, 'Food & Drink'),
         (GROCERIES, 'Groceries'),
         (ENTERTAINMENT, 'Entertainment'),
-        (INCOME, 'Income'),
         (OTHERS, "Others")
     ]
-    category = models.CharField(max_length=len(FOODDRINK))
+    category = models.CharField(
+        max_length=len(FOODDRINK),
+        choices=CATEGORY_CHOICES,
+        default=None
+    )
 
     def __str__(self):
         """Return string representation"""
@@ -154,3 +155,45 @@ class LimitedCategory(models.Model):
     def set_initial_value(self):
         """Sets the value according to limit"""
         self.amount = self.limit
+
+
+class Saving(models.Model):
+    """Database model for savings"""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete = models.CASCADE
+    )
+    name = models.CharField(max_length=255)
+    target_amount = models.DecimalField(
+        max_digits=19,
+        decimal_places=2
+    )
+    current_amount = models.DecimalField(
+        max_digits=19,
+        decimal_places=2
+    )
+    VACATION = 'Vacation'
+    TRIP = 'Trip'
+    MOTORISATION = 'Motorisation'
+    TRIP = 'Trip'
+    BUSSINESS = 'Business'
+    OTHERS = 'Others'
+
+    CATEGORY_CHOICES = [
+        (VACATION, 'Vacation'),
+        (TRIP, 'Trip'),
+        (MOTORISATION, 'Motorisation'),
+        (TRIP, 'Trip'),
+        (BUSSINESS, 'Business'),
+        (OTHERS, 'Others')
+    ]    
+
+    category = models.CharField(
+        max_length=len(MOTORISATION),
+        choices=CATEGORY_CHOICES,
+        default=None
+    )
+
+    def __str__(self):
+        """Return string representation"""
+        return self.name

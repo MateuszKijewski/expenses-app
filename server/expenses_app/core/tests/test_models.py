@@ -88,3 +88,13 @@ class ModelTests(TestCase):
         )
 
         self.assertEqual(str(limited_category), limited_category.category)
+    
+    def test_saving_str(self):
+        """Test the limited category string representation"""
+        saving = models.Saving.objects.create(
+            user=sample_user(),
+            name='Trip to greece',
+            category='Holidays',
+            target_amount='2000',
+            current_amount='230'
+        )
