@@ -41,7 +41,7 @@ class SavingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Saving
-        fields = ('id', 'user', 'target_amount', 'current_amount', 'category',)
+        fields = ('id', 'user', 'name', 'target_amount', 'current_amount', 'category',)
         extra_kwargs = {
             'id': {'read_only': True},
             'user': {'read_only': True},

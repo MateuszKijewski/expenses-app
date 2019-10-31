@@ -99,23 +99,25 @@ class SavingOperations(generics.GenericAPIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
     queryset = Saving.objects.all()
+    serializer_class = serializers.SavingOperationSerializer
 
-    def get_queryset(self):
-        saving_id = self.kwargs.get('saving_id')
-        return self.queryset(user=self.request.user, id=saving_id)
+    def get_queryset(self, request):
+        """Gets the currently authenticated user object"""
+        return self.queryset(user=self.request.user)
 
-    def get(self, request):
-        """Retrieve saving info"""
-        data = {
-            'saving': serializers.SavingSerializer(self.queryset).data
-        }
-        return Response(data, status=status.HTTP_200_OK)
-
-    def post(self, request, format=None):
+    def post(self, request, saving_id, format=None):
         """Post amount that you want to withdraw or add to your saving"""
         serializer = serializers.SavingOperationSerializer(data=request.data)
+
         if serializer.is_valid():
             value = serializer.validated_data.get('value')
+            obj = self.queryset.get(id=saving_id)
             if value > 0:
-                pass
-        return Response({"message": "tbc"})
+                obj.current_amount += value
+                obj.save()
+                return Response({"message": "Successfully added!"})
+            elif value < 0:
+                obj.current_amount += value
+                obj.save()
+            return Response({"message": "Successfully withdrawn!"})
+        return Response(status.HTTP_400_BAD_REQUEST)

@@ -12,6 +12,7 @@ from balance.serializers import OperationSerializer, LimitedCategorySerializer
 BALANCE_URL = reverse('balance:operation-list')
 OPERATION_DELETE_URL = reverse('balance:delete')
 LIMITED_CATEGORIES_URL = reverse('balance:limitedcategory-list')
+SAVING_URL = reverse('balance:saving-list')
 
 
 class PublicOperationApiTests(TestCase):
@@ -92,7 +93,7 @@ class PrivateOperationApiTests(TestCase):
         self.assertEqual(len(res.data), 1)
         self.assertEqual(res.data[0]['source'], operation.source)
 
-    def test_create_operation_succesfull(self):
+    def test_create_operation_successful(self):
         """Test creating an operation object"""
         payload = {
             'source': 'work',
@@ -235,3 +236,31 @@ class PrivateOperationApiTests(TestCase):
 
         res_category = self.client.get(LIMITED_CATEGORIES_URL)
         self.assertEqual(float(res_category.data[0]['amount']), 220.00)
+
+    def test_saving_operations(self):
+        """Test if adding and withdrawing from operations works"""
+        payload_saving = {
+            'name': 'Japan',
+            'target_amount': '3000',
+            'category': 'Trip'
+        }
+        payload_operation_1 = {
+            'value': 100
+        }
+        payload_operation_2 = {
+            'value': -50
+        }
+
+        res_creation = self.client.post(SAVING_URL, payload_saving)
+        self.assertEqual(res_creation.status_code, status.HTTP_201_CREATED)
+
+        self.client.post('/api/balance/savings/1/operations/', payload_operation_1)
+        res_creation = self.client.get(SAVING_URL)
+        self.assertEqual(float(res_creation.data[0]['current_amount']), 100.00)
+
+        self.client.post('/api/balance/savings/1/operations/', payload_operation_2)
+        res_creation = self.client.get(SAVING_URL)
+        self.assertEqual(float(res_creation.data[0]['current_amount']), 50.00)
+
+
+
