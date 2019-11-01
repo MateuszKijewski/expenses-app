@@ -8,8 +8,8 @@ from periodic import serializers
 
 
 class ReccurentPaymentViewSet(viewsets.GenericViewSet,
-                            mixins.ListModelMixin,
-                            mixins.CreateModelMixin):
+                              mixins.ListModelMixin,
+                              mixins.CreateModelMixin):
     """Manage operations in the database"""
     serializer_class = serializers.ReccuringPaymentSerializer
     authentication_classes = (TokenAuthentication,)
@@ -22,4 +22,4 @@ class ReccurentPaymentViewSet(viewsets.GenericViewSet,
 
     def perform_create(self, serializer):
         """Return objects for the currently authenticated user"""
-        serializer.save(user=self.request.user)
+        serializer.save(user=self.request.user, paid=False)

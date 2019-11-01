@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager,\
                                         PermissionsMixin
 from django.conf import settings
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class UserManager(BaseUserManager):
@@ -97,11 +97,12 @@ class ReccuringPayment(models.Model):
         on_delete = models.CASCADE
     )
     source = models.CharField(max_length=255)
-    paid_until = models.DateField()
+    paid_until = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(31)])
     amount = models.DecimalField(
         max_digits=19,
         decimal_places=2
     )
+    paid = models.BooleanField(default=False)
 
     BILL = 'Bill'
     SUBSCRIPTION = 'Subscription'
@@ -110,7 +111,10 @@ class ReccuringPayment(models.Model):
         (BILL, 'Bill'),
         (SUBSCRIPTION, 'Subscription')
     ]
-    category = models.CharField(max_length=len(SUBSCRIPTION))
+    category = models.CharField(
+        max_length=len(SUBSCRIPTION),
+        choices=CATEGORY_CHOICES
+    )
 
     def __str__(self):
         """String representation of a model"""
@@ -177,7 +181,6 @@ class Saving(models.Model):
     VACATION = 'Vacation'
     TRIP = 'Trip'
     MOTORISATION = 'Motorisation'
-    TRIP = 'Trip'
     BUSINESS = 'Business'
     OTHERS = 'Others'
 

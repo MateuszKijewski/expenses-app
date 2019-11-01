@@ -10,7 +10,7 @@ from core.models import ReccuringPayment
 from periodic.serializers import ReccuringPaymentSerializer
 
 RECCURING_PAYMENT_URL = reverse('periodic:reccurent-list')
-
+RECCURING_PAYMENT_PAY_URL = reverse('periodic:pay')
 
 class PublicOperationApiTests(TestCase):
     """Test the publicly available payments"""
@@ -36,22 +36,22 @@ class PrivateReccuringPaymentApiTest(TestCase):
         )
         self.client = APIClient()
         self.client.force_authenticate(self.user)
-    
+
     def test_user_retrieve_list(self):
         """Test if user is able to retrieve his payment"""
         ReccuringPayment.objects.create(
-            user = self.user,
-            source = 'water',
-            amount = -20.00,
-            category = 'Bills',
-            paid_until = '2019-12-12'
+            user=self.user,
+            source='water',
+            amount=20.00,
+            category='Bills',
+            paid_until=12
         )
         ReccuringPayment.objects.create(
-            user = self.user,
-            source = 'netflix',
-            amount = -10.00,
-            category = 'Bills',
-            paid_until = '2019-12-12'
+            user=self.user,
+            source='netflix',
+            amount=10.00,
+            category='Bills',
+            paid_until=12
         )
 
         res = self.client.get(RECCURING_PAYMENT_URL)
@@ -61,7 +61,7 @@ class PrivateReccuringPaymentApiTest(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
-    
+
     def test_payments_related_to_user(self):
         """Test if retrieved payments belong to user"""
         new_user = get_user_model().objects.create_user(
@@ -70,33 +70,34 @@ class PrivateReccuringPaymentApiTest(TestCase):
             tel_number='987654321'
         )
         ReccuringPayment.objects.create(
-            user = new_user,
-            source = 'netflix',
-            amount = -20.00,
-            category = 'Bills',
-            paid_until = '2019-12-12'
+            user=new_user,
+            source='netflix',
+            amount=20.00,
+            category='Bills',
+            paid_until=22,
+            paid=False
         )
         payment = ReccuringPayment.objects.create(
-            user = self.user,
-            source = 'water',
-            amount = -10.00,
-            category = 'Bills',
-            paid_until = '2019-12-12'
+            user=self.user,
+            source='water',
+            amount=10.00,
+            category='Bills',
+            paid_until=12,
+            paid=False
         )
-
         res = self.client.get(RECCURING_PAYMENT_URL)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 1)
         self.assertEqual(res.data[0]['source'], payment.source)
 
-    def test_create_operation_succesfull(self):
+    def test_create_bill_successful(self):
         """Test creating an operation object"""
         payload = {
             'source': 'Food',
             'amount': -200,
             'category': 'Bills',
-            'paid_until': '2019-11-11'
+            'paid_until': 11
         }
         res = self.client.post(RECCURING_PAYMENT_URL, payload)
         exists = ReccuringPayment.objects.filter(
@@ -111,9 +112,28 @@ class PrivateReccuringPaymentApiTest(TestCase):
         """Test creating with invalid payload"""
         payload = {
             'source': '',
-            'amount': '',
+            'amount': None,
             'category': ''
         }
         res = self.client.post(RECCURING_PAYMENT_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_payments_paid(self):
+        """Test finishing payments for the current payment cycle"""
+        payload_pay = {
+            "ids": [1]
+        }
+        ReccuringPayment.objects.create(
+            user=self.user,
+            source='netflix',
+            amount=20.00,
+            category='Subscriptions',
+            paid_until=22,
+            paid=False
+        )
+
+        res_pay = self.client.post(RECCURING_PAYMENT_PAY_URL, payload_pay)
+        self.assertEqual(res_pay.status_code, status.HTTP_200_OK)
+        res = self.client.get(RECCURING_PAYMENT_URL)
+        self.assertEqual(res.data[0]['paid'], True)
