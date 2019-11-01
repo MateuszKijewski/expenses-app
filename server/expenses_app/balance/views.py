@@ -12,8 +12,8 @@ from balance import serializers
 
 
 class OperationViewSet(viewsets.GenericViewSet,
-                    mixins.ListModelMixin,
-                    mixins.CreateModelMixin):
+                       mixins.ListModelMixin,
+                       mixins.CreateModelMixin):
     """Manage operations in the database"""
     serializer_class = serializers.OperationSerializer
     authentication_classes = (TokenAuthentication,)
@@ -33,11 +33,11 @@ class OperationViewSet(viewsets.GenericViewSet,
             try:
                 limited_category = LimitedCategory.objects.get(category=category)
                 limited_category.amount += serializer.validated_data['amount']
-                limited_category.save()        
+                limited_category.save()
                 serializer.save(user=self.request.user)
             except LimitedCategory.DoesNotExist:
                 serializer.save(user=self.request.user)
-    
+
 
 class OperationDelete(APIView):
     """Handle operations deleting"""
@@ -49,7 +49,7 @@ class OperationDelete(APIView):
         """Deletes objects that user posted"""
         serializer = serializers.DeleteSerializer(data=request.data)
         if serializer.is_valid():
-            ids = serializer.validated_data.get('ids')            
+            ids = serializer.validated_data.get('ids')
             for value in ids:
                 value = int(value)
                 try:
@@ -106,18 +106,62 @@ class SavingOperations(generics.GenericAPIView):
         return self.queryset(user=self.request.user)
 
     def post(self, request, saving_id, format=None):
-        """Post amount that you want to withdraw or add to your saving"""
+        """
+        Manipulates saving value, creating operation
+        objects depending on the actions taken
+        """
         serializer = serializers.SavingOperationSerializer(data=request.data)
 
         if serializer.is_valid():
             value = serializer.validated_data.get('value')
             obj = self.queryset.get(id=saving_id)
+
             if value > 0:
+                """Deposit"""
                 obj.current_amount += value
+                if obj.current_amount == obj.target_amount:
+                    """Finished saving"""
+                    obj.delete()
+                    return Response({"message": "Congratulations! You've achieved your goal"})
+                elif obj.current_amount > obj.target_amount:
+                    """Added too much with the last saving"""
+                    excess = obj.current_amount - obj.target_amount
+                    operation = Operation.objects.create(
+                        user=request.user,
+                        source=f'{obj.name} - excess',
+                        amount=excess,
+                        category='Saving',
+                        method='-'
+                    )
+                    obj.delete()
+                    operation.save()
+                    return Response({"message": "Congratulations! You've achieved your goal"
+                                                "(exceed amount has been returned to your account)"})
+                operation = Operation.objects.create(
+                    user=request.user,
+                    source=f'{obj.name} - saving',
+                    amount=value,
+                    category='Saving',
+                    method='-'
+                )
                 obj.save()
+                operation.save()
                 return Response({"message": "Successfully added!"})
+
             elif value < 0:
+                """Withdraw"""
                 obj.current_amount += value
+                if obj.current_amount < 0:
+                    """Withdrawing more than you have saved"""
+                    return Response({"message": "You can't withdraw more than you have saved"})
+                operation = Operation.objects.create(
+                    user=request.user,
+                    source=f'{obj.name} - withdraw',
+                    amount=value,
+                    category='Saving',
+                    method='-'
+                )
                 obj.save()
-            return Response({"message": "Successfully withdrawn!"})
+                operation.save()
+                return Response({"message": "Successfully withdrawn!"})
         return Response(status.HTTP_400_BAD_REQUEST)

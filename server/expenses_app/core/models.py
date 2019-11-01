@@ -61,6 +61,7 @@ class Operation(models.Model):
     BILL = 'Bill'
     SUBSCRIPTION = 'Subscription'
     INCOME = 'Income'
+    SAVING = 'Saving'
     OTHERS = 'Others'
 
     CATEGORY_CHOICES = [
@@ -71,6 +72,7 @@ class Operation(models.Model):
         (BILL, 'Bill'),
         (SUBSCRIPTION, 'Subscription'),
         (INCOME, 'Income'),
+        (SAVING, 'Saving'),
         (OTHERS, "Others")
     ]
     category = models.CharField(
@@ -82,7 +84,6 @@ class Operation(models.Model):
         max_length=255,
         default='Bank transfer'
     )
-
 
     def __str__(self):
         """String representation of an operation"""
@@ -114,6 +115,7 @@ class ReccuringPayment(models.Model):
     def __str__(self):
         """String representation of a model"""
         return self.source
+
 
 class LimitedCategory(models.Model):
     """Database model for limited categories"""
@@ -176,7 +178,7 @@ class Saving(models.Model):
     TRIP = 'Trip'
     MOTORISATION = 'Motorisation'
     TRIP = 'Trip'
-    BUSSINESS = 'Business'
+    BUSINESS = 'Business'
     OTHERS = 'Others'
 
     CATEGORY_CHOICES = [
@@ -184,7 +186,7 @@ class Saving(models.Model):
         (TRIP, 'Trip'),
         (MOTORISATION, 'Motorisation'),
         (TRIP, 'Trip'),
-        (BUSSINESS, 'Business'),
+        (BUSINESS, 'Business'),
         (OTHERS, 'Others')
     ]    
 

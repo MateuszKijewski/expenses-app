@@ -39,22 +39,22 @@ class PrivateOperationApiTests(TestCase):
         )
         self.client = APIClient()
         self.client.force_authenticate(self.user)
-    
+
     def test_user_retrieve_list(self):
         """Test if user is able to retrieve his operation"""
         Operation.objects.create(
-            user = self.user,
-            source = 'ubereats',
-            amount = 20.00,
-            category = 'Shopping',
-            method = 'Bank transfer'
+            user=self.user,
+            source='ubereats',
+            amount=20.00,
+            category='Shopping',
+            method='Bank transfer'
         )
         Operation.objects.create(
-            user = self.user,
-            source = 'mousepad',
-            amount = 10.00,
-            category = 'Shopping',
-            method = 'Bank transfer'
+            user=self.user,
+            source='mousepad',
+            amount=10.00,
+            category='Shopping',
+            method='Bank transfer'
         )
 
         res = self.client.get(BALANCE_URL)
@@ -64,7 +64,7 @@ class PrivateOperationApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
-    
+
     def test_operations_related_to_user(self):
         """Test if retrieved operations belong to user"""
         new_user = get_user_model().objects.create_user(
@@ -76,15 +76,15 @@ class PrivateOperationApiTests(TestCase):
             user=new_user,
             source='new user thing',
             amount=5.00,
-            category = 'Shopping',
-            method = 'Bank transfer'
+            category='Shopping',
+            method='Bank transfer'
         )
         operation = Operation.objects.create(
             user=self.user,
             source='telephone',
             amount=500.00,
-            category = 'Shopping',
-            method = 'Bank transfer'
+            category='Shopping',
+            method='Bank transfer'
         )
 
         res = self.client.get(BALANCE_URL)
@@ -101,7 +101,7 @@ class PrivateOperationApiTests(TestCase):
             'category': 'Shopping',
             'method': 'Bank transfer'
         }
-        res = self.client.post(BALANCE_URL, payload)
+        self.client.post(BALANCE_URL, payload)
         exists = Operation.objects.filter(
             user=self.user,
             source=payload['source'],
@@ -109,7 +109,7 @@ class PrivateOperationApiTests(TestCase):
         ).exists()
 
         self.assertTrue(exists)
-    
+
     def test_create_operation_invalid(self):
         """Test creating with invalid payload"""
         payload = {
@@ -121,60 +121,60 @@ class PrivateOperationApiTests(TestCase):
         res = self.client.post(BALANCE_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-    
+
     def test_getting_balance(self):
         """Test getting balance related to users operations"""
-        operation_add = Operation.objects.create(
+        Operation.objects.create(
             user=self.user,
             source='OLX',
             amount=3400.00,
-            category = 'Income',
-            method = 'Bank transfer'
+            category='Income',
+            method='Bank transfer'
         )
-        operation_delete = Operation.objects.create(
+        Operation.objects.create(
             user=self.user,
             source='telephone',
-            amount= -1400.00,
-            category = 'Others',
-            method = 'Bank transfer'
-        ) 
+            amount=-1400.00,
+            category='Others',
+            method='Bank transfer'
+        )
         res = self.client.get(BALANCE_URL)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(float(res.data[0]['amount']) + 
-                        float(res.data[1]['amount']), 2000.00)
+        self.assertEqual(float(res.data[0]['amount']) +
+                         float(res.data[1]['amount']), 2000.00)
 
     def test_operation_deleting_success(self):
         """Test deleting objects"""
-        operation = Operation.objects.create(
+        Operation.objects.create(
             user=self.user,
             source='spotify',
-            amount= -30,
-            category= 'Bill',
-            method = 'Bank transfer'
+            amount=-30,
+            category='Bill',
+            method='Bank transfer'
         )
-        res = self.client.post(OPERATION_DELETE_URL, {"ids":[1]})
+        res = self.client.post(OPERATION_DELETE_URL, {"ids": [1]})
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
         res = self.client.get(BALANCE_URL)
 
         self.assertEqual(len(res.data), 0)
-    
+
     def test_deleting_nonexistent_operations(self):
         """Test deleting with invalid id"""
-        res = self.client.post(OPERATION_DELETE_URL, {"ids":[1]})
+        res = self.client.post(OPERATION_DELETE_URL, {"ids": [1]})
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_category_list(self):
         """Test if categories are listing correctly"""
-        LimitedCategory.objects.create (
+        LimitedCategory.objects.create(
             user=self.user,
             category='Groceries',
             limit=250,
             amount=250
         )
-        LimitedCategory.objects.create (
+        LimitedCategory.objects.create(
             user=self.user,
             category='Food & Drink',
             limit=300,
@@ -188,7 +188,7 @@ class PrivateOperationApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
-    
+
     def test_categories_related_to_user(self):
         """Test if retrieved categories belong to user"""
         new_user = get_user_model().objects.create_user(
@@ -196,13 +196,13 @@ class PrivateOperationApiTests(TestCase):
             password='asd123',
             tel_number='987654321'
         )
-        LimitedCategory.objects.create (
+        LimitedCategory.objects.create(
             user=new_user,
             category='Groceries',
             limit=250,
             amount=250
         )
-        category = LimitedCategory.objects.create (
+        category = LimitedCategory.objects.create(
             user=self.user,
             category='Food & Drink',
             limit=300,
@@ -262,5 +262,58 @@ class PrivateOperationApiTests(TestCase):
         res_creation = self.client.get(SAVING_URL)
         self.assertEqual(float(res_creation.data[0]['current_amount']), 50.00)
 
+        res_operations = self.client.get(BALANCE_URL)
+        self.assertEqual(len(res_operations.data), 2)
+        self.assertEqual(float(res_operations.data[0]['amount']), 100.00)
+        self.assertEqual(float(res_operations.data[1]['amount']), -50.00)
 
+    def test_saving_withdraw_too_much(self):
+        """Test trying to withdraw more than is saved"""
+        payload_saving = {
+            'name': 'Japan',
+            'target_amount': '3000',
+            'category': 'Trip'
+        }
+        payload_operation = {
+            'value': -100
+        }
 
+        res_creation = self.client.post(SAVING_URL, payload_saving)
+        self.assertEqual(res_creation.status_code, status.HTTP_201_CREATED)
+        res = self.client.post('/api/balance/savings/1/operations/', payload_operation)
+        self.assertEqual(res.data['message'], "You can't withdraw more than you have saved")
+
+    def test_saving_operation_finish(self):
+        """Test finishing saving"""
+        payload_saving = {
+            'name': 'Japan',
+            'target_amount': '3000',
+            'category': 'Trip'
+        }
+        payload_operation = {
+            'value': 3000
+        }
+
+        res_creation = self.client.post(SAVING_URL, payload_saving)
+        self.assertEqual(res_creation.status_code, status.HTTP_201_CREATED)
+        res = self.client.post('/api/balance/savings/1/operations/', payload_operation)
+        self.assertEqual(res.data['message'], "Congratulations! You've achieved your goal")
+
+    def test_saving_operation_finish_exceed(self):
+        """Test finishing saving with exceeding last transfer"""
+        payload_saving = {
+            'name': 'Japan',
+            'target_amount': '3000',
+            'category': 'Trip'
+        }
+        payload_operation = {
+            'value': 3200
+        }
+
+        res_creation = self.client.post(SAVING_URL, payload_saving)
+        self.assertEqual(res_creation.status_code, status.HTTP_201_CREATED)
+        res = self.client.post('/api/balance/savings/1/operations/', payload_operation)
+        self.assertEqual(res.data['message'], "Congratulations! You've achieved your goal"
+                                              "(exceed amount has been returned to your account)")
+        res_operation = self.client.get(BALANCE_URL)
+        self.assertEqual(float(res_operation.data[0]['amount']), 200.00)
