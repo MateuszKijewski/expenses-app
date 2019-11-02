@@ -6,10 +6,9 @@ from rest_framework import serializers
 
 class UserSerializer(serializers.ModelSerializer):
     """Serializes user models"""
-
     class Meta:
         model = get_user_model()
-        fields = ('email', 'password', 'name', 'tel_number',)
+        fields = ('email', 'password', 'name', 'tel_number', 'balance',)
         extra_kwargs = {
             'password': {'write_only': True, 'min_length': 5},
             'tel_number': {'min_length': 9}
@@ -27,7 +26,7 @@ class UserSerializer(serializers.ModelSerializer):
         if password:
             user.set_password(password)
             user.save()
-        
+
         return user
 
 
@@ -52,6 +51,6 @@ class AuthTokenSerializer(serializers.Serializer):
         if not user:
             msg = _('Unable to authenticate with provided credentials')
             raise serializers.ValidationError(msg, code='authentication')
-            
+
         attrs['user'] = user
         return attrs

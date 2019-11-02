@@ -9,8 +9,11 @@ from core.models import ReccuringPayment
 
 from periodic.serializers import ReccuringPaymentSerializer
 
+from balance.tests.test_operation import BALANCE_URL
+
 RECCURING_PAYMENT_URL = reverse('periodic:reccurent-list')
 RECCURING_PAYMENT_PAY_URL = reverse('periodic:pay')
+
 
 class PublicOperationApiTests(TestCase):
     """Test the publicly available payments"""
@@ -95,8 +98,8 @@ class PrivateReccuringPaymentApiTest(TestCase):
         """Test creating an operation object"""
         payload = {
             'source': 'Food',
-            'amount': -200,
-            'category': 'Bills',
+            'amount': 200,
+            'category': 'Bill',
             'paid_until': 11
         }
         res = self.client.post(RECCURING_PAYMENT_URL, payload)
@@ -112,8 +115,9 @@ class PrivateReccuringPaymentApiTest(TestCase):
         """Test creating with invalid payload"""
         payload = {
             'source': '',
-            'amount': None,
-            'category': ''
+            'amount': '',
+            'category': '',
+            'paid_until': ''
         }
         res = self.client.post(RECCURING_PAYMENT_URL, payload)
 
@@ -124,16 +128,21 @@ class PrivateReccuringPaymentApiTest(TestCase):
         payload_pay = {
             "ids": [1]
         }
-        ReccuringPayment.objects.create(
-            user=self.user,
-            source='netflix',
-            amount=20.00,
-            category='Subscriptions',
-            paid_until=22,
-            paid=False
-        )
+        payload = {
+            "source": 'netflix',
+            "amount": 20.00,
+            "category": 'Subscription',
+            "paid_until": 22,
+        }
+
+        res = self.client.post(RECCURING_PAYMENT_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
         res_pay = self.client.post(RECCURING_PAYMENT_PAY_URL, payload_pay)
         self.assertEqual(res_pay.status_code, status.HTTP_200_OK)
-        res = self.client.get(RECCURING_PAYMENT_URL)
-        self.assertEqual(res.data[0]['paid'], True)
+
+        res_check = self.client.get(RECCURING_PAYMENT_URL)
+        self.assertEqual(res_check.data[0]['paid'], True)
+
+        res_operation = self.client.get(BALANCE_URL)
+        self.assertEqual(float(res_operation.data[0]['amount']), -20.00)

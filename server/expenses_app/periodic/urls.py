@@ -11,4 +11,5 @@ app_name = 'periodic'
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('reccuring/pay', views.ReccurentMakePayment.as_view(), name='pay')
 ]

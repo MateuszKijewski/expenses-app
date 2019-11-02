@@ -1,12 +1,14 @@
+from datetime import date
+
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager,\
-                                        PermissionsMixin
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, \
+    PermissionsMixin
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class UserManager(BaseUserManager):
-    
+
     def create_user(self, email, password=None, **extra_fields):
         """Creates and saves a new user"""
         if not email:
@@ -39,12 +41,18 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'email'
 
+    def get_balance(self):
+        """Gets users balance"""
+        balance = 0
+        for operation in Operation.objects.filter(user=self):
+            balance += operation.amount
+        return balance
 
 class Operation(models.Model):
     """Database model for operation"""
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete = models.CASCADE
+        on_delete=models.CASCADE
     )
     source = models.CharField(max_length=255)
     is_archived = models.BooleanField(default=False)
@@ -94,7 +102,7 @@ class ReccuringPayment(models.Model):
     """Database model for limited reccuring payments"""
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete = models.CASCADE
+        on_delete=models.CASCADE
     )
     source = models.CharField(max_length=255)
     paid_until = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(31)])
@@ -120,12 +128,19 @@ class ReccuringPayment(models.Model):
         """String representation of a model"""
         return self.source
 
+    def until_payment(self):
+        """Checks how many days until payment"""
+        today = date.today().strftime("%d")
+        if self.paid:
+            return "It's already paid"
+        return self.paid_until - today
+
 
 class LimitedCategory(models.Model):
     """Database model for limited categories"""
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete = models.CASCADE
+        on_delete=models.CASCADE
     )
     limit = models.DecimalField(
         max_digits=19,
@@ -167,7 +182,7 @@ class Saving(models.Model):
     """Database model for savings"""
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete = models.CASCADE
+        on_delete=models.CASCADE
     )
     name = models.CharField(max_length=255)
     target_amount = models.DecimalField(
@@ -191,7 +206,7 @@ class Saving(models.Model):
         (TRIP, 'Trip'),
         (BUSINESS, 'Business'),
         (OTHERS, 'Others')
-    ]    
+    ]
 
     category = models.CharField(
         max_length=len(MOTORISATION),

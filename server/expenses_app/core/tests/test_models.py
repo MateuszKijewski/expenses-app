@@ -15,7 +15,7 @@ def sample_user(email='test@gmail.com', password='test123'):
 
 
 class ModelTests(TestCase):
-    
+
     def test_create_user_with_email_succseful(self):
         """Test creating a new user with an email is succesful"""
         email = 'test@gmail.com'
@@ -28,7 +28,7 @@ class ModelTests(TestCase):
 
         self.assertEqual(user.email, email)
         self.assertTrue(user.check_password(password))
-    
+
     def test_new_user_email_normalized(self):
         """Tests if email is normalized"""
         email = 'test@GMAIL.COM'
@@ -57,27 +57,27 @@ class ModelTests(TestCase):
     def test_operation_str(self):
         """Test the operation string representation"""
         operation = models.Operation.objects.create(
-            user = sample_user(),
-            source = 'ubereats',
-            amount = 20.00,
-            category= 'Groceries',
+            user=sample_user(),
+            source='ubereats',
+            amount=20.00,
+            category='Groceries',
             method='Bank transfer'
         )
 
         self.assertEqual(str(operation), operation.source)
-    
+
     def test_reccuring_payment_str(self):
         """Test the reccuring payment string representation"""
         payment = models.ReccuringPayment.objects.create(
-            user = sample_user(),
-            source = 'netflix',
-            amount = 30,
-            paid_until='2019-12-12',
+            user=sample_user(),
+            source='netflix',
+            amount=30,
+            paid_until='2',
             category='Bill'
         )
-        
+
         self.assertEqual(str(payment), payment.source)
-    
+
     def test_limited_category_str(self):
         """Test the limited category string representation"""
         limited_category = models.LimitedCategory.objects.create(
@@ -88,7 +88,7 @@ class ModelTests(TestCase):
         )
 
         self.assertEqual(str(limited_category), limited_category.category)
-    
+
     def test_saving_str(self):
         """Test the limited category string representation"""
         saving = models.Saving.objects.create(
@@ -98,3 +98,4 @@ class ModelTests(TestCase):
             target_amount='2000',
             current_amount='230'
         )
+        self.assertEqual(str(saving), saving.name)

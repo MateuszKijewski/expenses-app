@@ -22,11 +22,11 @@ class OperationViewSet(viewsets.GenericViewSet,
 
     def get_queryset(self):
         """Return objects for the currently authenticated user"""
-        return self.queryset.filter(user=self.request.user)
+        return self.queryset.filter(user=self.request.user).order_by('-add_date')
 
     def perform_create(self, serializer):
         """Create new action"""
-        if (serializer.validated_data['amount'] > 0):
+        if serializer.validated_data['amount'] > 0:
             serializer.save(user=self.request.user)
         else:
             category = serializer.validated_data['category']
@@ -44,6 +44,10 @@ class OperationDelete(APIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
     queryset = Operation.objects.all()
+
+    def get(self, request):
+        balance = request.user.get_balance()
+        return Response({"balance": balance})
 
     def post(self, request, format=None):
         """Deletes objects that user posted"""
