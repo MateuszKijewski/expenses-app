@@ -8,7 +8,8 @@ class ReccuringPaymentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.ReccuringPayment
-        fields = ('id', 'user', 'source', 'paid_until', 'amount', 'paid', 'category',)
+        fields = ('id', 'user', 'source', 'paid_until', 'amount',
+                  'paid', 'category',)
         extra_kwargs = {
             'id': {'read_only': True},
             'user': {'read_only': True},

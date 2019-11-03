@@ -1,3 +1,5 @@
+from itertools import chain
+
 from django.http import HttpResponse
 
 from rest_framework import viewsets, mixins, generics, status
@@ -6,9 +8,50 @@ from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from core.models import Operation, LimitedCategory, Saving
+from core.models import Operation, LimitedCategory, Saving, ReccuringPayment
 
 from balance import serializers
+from periodic.serializers import ReccuringPaymentSerializer
+
+
+class DashboardAPIView(APIView):
+    """Show application dashboard"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        reccuring_payments_queryset = ReccuringPayment.objects.filter(user=self.request.user)
+        close_payments_ids = [
+            payment.id
+            for payment in reccuring_payments_queryset
+            if payment.until_payment() < 20
+        ]
+        reccuring_payments_queryset = reccuring_payments_queryset.filter(pk__in=close_payments_ids)[:4]
+        limited_categories_queryset = LimitedCategory.objects.filter(user=self.request.user)[:4]
+        saving_categories_queryset = Saving.objects.filter(user=self.request.user)[:5]
+
+        result_list = list(chain(
+            reccuring_payments_queryset,
+            limited_categories_queryset,
+            saving_categories_queryset
+        ))
+        results = list()
+        for entry in result_list:
+            item_type = entry.__class__.__name__.lower()
+            if isinstance(entry, ReccuringPayment):
+                serializer = ReccuringPaymentSerializer(entry)
+            if isinstance(entry, LimitedCategory):
+                serializer = serializers.LimitedCategorySerializer(entry)
+            if isinstance(entry, Saving):
+                serializer = serializers.SavingSerializer(entry)
+
+            results.append({'item_type': item_type, 'data': serializer.data})
+        results.append({'balance': self.request.user.get_balance()})
+
+        return results
+
+    def get(self, request):
+        return Response(self.get_queryset())
 
 
 class OperationViewSet(viewsets.GenericViewSet,

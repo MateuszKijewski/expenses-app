@@ -133,7 +133,7 @@ class ReccuringPayment(models.Model):
         today = date.today().strftime("%d")
         if self.paid:
             return "It's already paid"
-        return self.paid_until - today
+        return self.paid_until - int(today)
 
 
 class LimitedCategory(models.Model):

@@ -16,6 +16,7 @@ class OperationSerializer(serializers.ModelSerializer):
             'is_archived': {'read_only': True}
         }
 
+
 class DeleteSerializer(serializers.Serializer):
     """Serializes tasks that are about to be deleted"""
     ids = serializers.ListField(

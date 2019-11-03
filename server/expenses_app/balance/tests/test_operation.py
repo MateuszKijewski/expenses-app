@@ -5,7 +5,7 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import Operation, LimitedCategory
+from core.models import Operation, LimitedCategory, Saving, User
 
 from balance.serializers import OperationSerializer, LimitedCategorySerializer
 
@@ -13,6 +13,7 @@ BALANCE_URL = reverse('balance:operation-list')
 OPERATION_DELETE_URL = reverse('balance:delete')
 LIMITED_CATEGORIES_URL = reverse('balance:limitedcategory-list')
 SAVING_URL = reverse('balance:saving-list')
+DASHBOARD_URL = reverse('balance:dashboard')
 
 
 class PublicOperationApiTests(TestCase):
@@ -39,6 +40,33 @@ class PrivateOperationApiTests(TestCase):
         )
         self.client = APIClient()
         self.client.force_authenticate(self.user)
+
+    # def test_dashboard(self):
+    #     """Test if dashboard is correctly seen"""
+    #
+    #     for i in range(6):
+    #         Operation.objects.create(
+    #             user=self.user,
+    #             source='test',
+    #             amount=20.00,
+    #             category='Shopping',
+    #             method='Bank transfer'
+    #         )
+    #         LimitedCategory.objects.create(
+    #             user=self.user,
+    #             category='Groceries',
+    #             limit=250,
+    #             amount=250
+    #         )
+    #         Saving.objects.create(
+    #             user=self.user,
+    #             name='Greece',
+    #             target_amount=3000,
+    #             current_amount=0,
+    #             category='Trip'
+    #         )
+    #     res = self.client.get(DASHBOARD_URL)
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_user_retrieve_list(self):
         """Test if user is able to retrieve his operation"""

@@ -28,3 +28,6 @@ class UserAdmin(BaseUserAdmin):
 
 admin.site.register(models.User, UserAdmin)
 admin.site.register(models.Operation)
+admin.site.register(models.ReccuringPayment)
+admin.site.register(models.Saving)
+admin.site.register(models.LimitedCategory)

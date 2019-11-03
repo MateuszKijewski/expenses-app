@@ -15,5 +15,6 @@ app_name = 'balance'
 urlpatterns = [
     path('operations/delete', views.OperationDelete.as_view(), name='delete'),
     url(r'savings/(?P<saving_id>.+)/operations', views.SavingOperations.as_view(), name='saving_operations'),
+    path('dashboard/', views.DashboardAPIView.as_view(), name='dashboard'),
     path('', include(router.urls))
 ]
