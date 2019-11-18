@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class ExpensesApiConfig(AppConfig):
-    name = 'expenses_api'
+class CoreConfig(AppConfig):
+    name = 'core'
