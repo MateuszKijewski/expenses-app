@@ -39,7 +39,7 @@ SECRET_KEY = 'kp#fup5iev55o4foz0(b7vuu+*!5o6raiu_75lcj$38#i+6q53'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['ms-expenses-api.herokuapp.com/']
 
 
 
