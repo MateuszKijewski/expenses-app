@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
-import json
+
+from celery.schedules import crontab
 from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -57,6 +58,7 @@ INSTALLED_APPS = [
     'user',
     'balance',
     'periodic',
+    'django_celery_beat'
 ]
 
 MIDDLEWARE = [
@@ -156,4 +158,13 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ]
+}
+
+CELERY_BROKER_URL = 'redis://localhost:6379'
+CELERY_TIMEZONE = 'Europe/Warsaw'
+CELERY_BEAT_SCHEDULE = {
+        'send-notification': {
+            'task': 'periodic',
+            'schedule': crontab(minute=0, hour=1)
+        }
 }
