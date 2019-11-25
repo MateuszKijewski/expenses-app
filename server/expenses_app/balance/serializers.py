@@ -8,7 +8,7 @@ class OperationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Operation
-        fields = ('id', 'user', 'source', 'is_archived', 'amount', 'add_date',
+        fields = ('id', 'source', 'is_archived', 'amount', 'add_date',
                     'category', 'method',)
         extra_kwargs = {
             'id': {'read_only': True},
@@ -29,7 +29,7 @@ class LimitedCategorySerializer(serializers.ModelSerializer):
     
     class Meta:
         model = models.LimitedCategory
-        fields = ('id', 'user', 'limit', 'amount', 'category',)
+        fields = ('id', 'limit', 'amount', 'category',)
         extra_kwargs = {
             'id': {'read_only': True},
             'user': {'read_only': True},

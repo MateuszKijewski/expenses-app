@@ -39,7 +39,8 @@ SECRET_KEY = 'kp#fup5iev55o4foz0(b7vuu+*!5o6raiu_75lcj$38#i+6q53'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['ms-expenses-api.herokuapp.com/']
+ALLOWED_HOSTS = ['ms-expenses-api.herokuapp.com/',
+                 '127.0.0.1']
 
 
 
@@ -154,6 +155,7 @@ STATIC_URL = '/static/'
 AUTH_USER_MODEL = 'core.User'
 
 REST_FRAMEWORK = {
+    'COERCE_DECIMAL_TO_STRING': False,
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',

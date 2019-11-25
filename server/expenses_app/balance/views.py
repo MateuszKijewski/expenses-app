@@ -63,6 +63,13 @@ class OperationViewSet(viewsets.GenericViewSet,
     permission_classes = (IsAuthenticated,)
     queryset = Operation.objects.all()
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response({'message': 'Object created successfully'}, status=status.HTTP_201_CREATED, headers=headers)
+
     def get_queryset(self):
         """Return objects for the currently authenticated user"""
         return self.queryset.filter(user=self.request.user).order_by('-add_date')
@@ -116,6 +123,13 @@ class LimitedCategoryViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.LimitedCategorySerializer
     queryset = LimitedCategory.objects.all()
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response({'message': 'Object created successfully'}, status=status.HTTP_201_CREATED, headers=headers)
+
     def get_queryset(self):
         """Return objects for the currently authenticated user"""
         return self.queryset.filter(user=self.request.user)
@@ -131,6 +145,13 @@ class SavingViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = serializers.SavingSerializer
     queryset = Saving.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response({'message': 'Object created successfully'}, status=status.HTTP_201_CREATED, headers=headers)
 
     def get_queryset(self):
         """Return objects for the currently authenticated user"""
@@ -211,4 +232,4 @@ class SavingOperations(generics.GenericAPIView):
                 obj.save()
                 operation.save()
                 return Response({"message": "Successfully withdrawn!"})
-        return Response(status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'Provided amount was invalid'}, status.HTTP_400_BAD_REQUEST)
