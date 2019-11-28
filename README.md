@@ -3,9 +3,11 @@
 
 app features:
 - full registration and login system
-- managing expenses, savings, limited categories
-- reccuring payments using Celery
+- managing expenses, savings and limited categories
+- managing recurrent payments using Celery and Redis
+
+in development:
+- scheduled mails reminding about incoming bills
 
 in the future:
-- Google login
-- Mail reminders
+- login with Google
